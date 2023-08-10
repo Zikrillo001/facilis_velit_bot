@@ -111,7 +111,8 @@ def main_menu_handler(update, context):
 
 def search_drug(update, context):
     message = update.message.text
-
+    user = update.message.from_user
+    db_user = db.get_user_by_chat_id(user.id)
     # cyrillic_text = "Привет, мир!"
 
     lang_id = int(context.user_data.get("lang_id", db.get_user_by_chat_id(update.message.from_user.id)["lang_id"]))
@@ -120,7 +121,17 @@ def search_drug(update, context):
         update.message.reply_text(text=globals.DRUG_RESTRICTION[lang_id - 1])
 
     else:
-        update.message.reply_text(text="tasavvur qil mana shu yerda san yozgan so'zga mos dori chiqdi\n tabriklayman😂")
+        db_drugs = db.search_drugs_by_text(message[:3])
+        buttons = [[KeyboardButton(text=globals.GO_MAIN_MENU[int(db_user["lang_id"]) - 1])]]
+        for i in db_drugs:
+            buttons.append([KeyboardButton(text=i["name"])])
+        update.message.reply_text(
+            text=globals.SEARCH_BUTTON_RESULT[int(db_user["lang_id"]) - 1],
+            reply_markup=ReplyKeyboardMarkup(
+                keyboard=buttons,
+                resize_keyboard=True
+            )
+        )
 
 
 def send_lang_options(update, context, db_user):

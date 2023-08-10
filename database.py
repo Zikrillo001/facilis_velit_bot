@@ -21,6 +21,13 @@ class Database:
         user = dict_fetchone(self.cur)
         return user
 
+    def search_drugs_by_text(self, name_text):
+        self.cur.execute("""SELECT * FROM drugs WHERE SUBSTR(name, 1, 3) = ?""", (name_text,))
+
+        drugs = dict_fetchall(self.cur)
+        print(drugs)
+        return drugs
+
 
 def dict_fetchall(cursor):
     columns = [col[0] for col in cursor.description]
